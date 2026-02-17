@@ -1,7 +1,5 @@
 package edu.grinnell.csc324;
 
-import edu.grinnell.csc324.Agent.Position;
-
 public class Environment {
   private char[][] board;
 
