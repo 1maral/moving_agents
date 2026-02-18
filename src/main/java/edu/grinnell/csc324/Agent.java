@@ -17,7 +17,10 @@ public class Agent {
     }
 
     public int voteMove() {
-        currentMove = this.moveGenerator.nextInt(5);
-        return currentMove;
+        if (weight == 5){
+            return 3;
+        }else {
+            currentMove = this.moveGenerator.nextInt(5);
+            return currentMove;}
     }
 }

@@ -8,8 +8,15 @@ public class Environment {
 
   public Environment() {
     board = new Agent[7][7];
+
+    for (int i = 0; i < 7; i++) {
+      for (int j = 0; j < 7; j++) {
+          this.board[i][j] = new Agent(0, 0, 0);
+      }
+    }
     objSize = new int[2];
     objTopLeft = new int[2];
+    decidedMove = -1;
     initialize();
   }
 
@@ -27,28 +34,64 @@ public class Environment {
     objSize[1] = 3;
 
     objTopLeft[0] = 0;
-    objTopLeft[1] = 2;
+    objTopLeft[1] = 3;
   }
 
-  public void updateWeight(){
+  public void updateWeight() {
+
+    // 1️⃣ Reset everything to 0
     for (int i = 0; i < 7; i++) {
-      for (int j = 0; j < 7; j++) {
-        if (i == objTopLeft[0] || i == (objTopLeft[0] + 1)) {
-          if (j == objTopLeft[1] || j == (objTopLeft[1] + 1) || j == (objTopLeft[1] + 2)) {
-            board[i][j].weight = 5;
-          } else if (j == (objTopLeft[1] - 1) || j == (objTopLeft[1] + 3)){
-            board[i][j].weight = 1;
-          }
-        } else if (i == objTopLeft[0] - 1 || i == (objTopLeft[0] + 2)) {
-          if (j == objTopLeft[1] || j == (objTopLeft[1] + 1) || j == (objTopLeft[1] + 2)) {
-            board[i][j].weight = 1;
-          }
-        } else {
-          board[i][j].weight = 0;
+        for (int j = 0; j < 7; j++) {
+            board[i][j].weight = 0;
         }
-      }
     }
-  }
+
+    // 2️⃣ Place the 5's (2x3 object)
+    for (int i = objTopLeft[0]; i <= objTopLeft[0] + 1; i++) {
+        for (int j = objTopLeft[1]; j <= objTopLeft[1] + 2; j++) {
+            board[i][j].weight = 5;
+        }
+    }
+
+    // 3️⃣ Place 1's only beside 5's
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 7; j++) {
+
+            if (board[i][j].weight == 0) {
+
+                // Check 4 directions
+                if ((i > 0 && board[i - 1][j].weight == 5) ||
+                    (i < 6 && board[i + 1][j].weight == 5) ||
+                    (j > 0 && board[i][j - 1].weight == 5) ||
+                    (j < 6 && board[i][j + 1].weight == 5)) {
+
+                    board[i][j].weight = 1;
+                }
+            }
+        }
+    }
+}
+
+
+  // public void updateWeight(){
+  //   for (int i = 0; i < 7; i++) {
+  //     for (int j = 0; j < 7; j++) {
+  //       if (i == objTopLeft[0] || i == (objTopLeft[0] + 1)) {
+  //         if (j == objTopLeft[1] || j == (objTopLeft[1] + 1) || j == (objTopLeft[1] + 2)) {
+  //           board[i][j].weight = 5;
+  //         } else if (j == (objTopLeft[1] - 1) || j == (objTopLeft[1] + 3)){
+  //           board[i][j].weight = 1;
+  //         }
+  //       } else if (i == objTopLeft[0] - 1 || i == (objTopLeft[0] + 2)) {
+  //         if (j == objTopLeft[1] || j == (objTopLeft[1] + 1) || j == (objTopLeft[1] + 2)) {
+  //           board[i][j].weight = 1;
+  //         }
+  //       } else {
+  //         board[i][j].weight = 0;
+  //       }
+  //     }
+  //   }
+  // }
 
   public void decideMove() {
     int[] moves = new int[5];
@@ -87,6 +130,7 @@ public class Environment {
     } else {
       // no move
     }
+    updateWeight();
     checkType();
   }
 
@@ -121,10 +165,14 @@ public class Environment {
   }
   public static void main(String[] args) {
     Environment environment = new Environment();
+    System.out.println("Choose default mode (0) or fast mode (1). ");
+    System.out.println("1");
     while (environment.checkType()) {
       environment.moveObj();
       environment.print();
+      System.out.println();
     }
+    System.out.println("The final score is: " + environment.board[0][0].payOff);
   }
 }
 
