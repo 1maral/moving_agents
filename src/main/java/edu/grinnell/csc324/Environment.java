@@ -37,76 +37,49 @@ public class Environment {
     objTopLeft[1] = 3;
   }
 
-  public void updateWeight() {
-
-    // 1️⃣ Reset everything to 0
+  public void updateWeight(){
     for (int i = 0; i < 7; i++) {
-        for (int j = 0; j < 7; j++) {
-            board[i][j].weight = 0;
-        }
-    }
-
-    // 2️⃣ Place the 5's (2x3 object)
-    for (int i = objTopLeft[0]; i <= objTopLeft[0] + 1; i++) {
-        for (int j = objTopLeft[1]; j <= objTopLeft[1] + 2; j++) {
+      for (int j = 0; j < 7; j++) {
+        if (i == objTopLeft[0] || i == (objTopLeft[0] + 1)) {
+          if (j == objTopLeft[1] || j == (objTopLeft[1] + 1) || j == (objTopLeft[1] + 2)) {
             board[i][j].weight = 5;
+          } else if (j == (objTopLeft[1] - 1) || j == (objTopLeft[1] + 3)){
+            board[i][j].weight = 1;
+          } else {
+            board[i][j].weight = 0;
+          }
+        } else if (i == objTopLeft[0] - 1 || i == (objTopLeft[0] + 2)) {
+          if (j == objTopLeft[1] || j == (objTopLeft[1] + 1) || j == (objTopLeft[1] + 2)) {
+            board[i][j].weight = 1;
+          } else {
+            board[i][j].weight = 0;
+          }
+        } else {
+          board[i][j].weight = 0;
         }
+      }
     }
+  }
 
-    // 3️⃣ Place 1's only beside 5's
-    for (int i = 0; i < 7; i++) {
-        for (int j = 0; j < 7; j++) {
-
-            if (board[i][j].weight == 0) {
-
-                // Check 4 directions
-                if ((i > 0 && board[i - 1][j].weight == 5) ||
-                    (i < 6 && board[i + 1][j].weight == 5) ||
-                    (j > 0 && board[i][j - 1].weight == 5) ||
-                    (j < 6 && board[i][j + 1].weight == 5)) {
-
-                    board[i][j].weight = 1;
-                }
-            }
-        }
-    }
-}
-
-
-  // public void updateWeight(){
-  //   for (int i = 0; i < 7; i++) {
-  //     for (int j = 0; j < 7; j++) {
-  //       if (i == objTopLeft[0] || i == (objTopLeft[0] + 1)) {
-  //         if (j == objTopLeft[1] || j == (objTopLeft[1] + 1) || j == (objTopLeft[1] + 2)) {
-  //           board[i][j].weight = 5;
-  //         } else if (j == (objTopLeft[1] - 1) || j == (objTopLeft[1] + 3)){
-  //           board[i][j].weight = 1;
-  //         }
-  //       } else if (i == objTopLeft[0] - 1 || i == (objTopLeft[0] + 2)) {
-  //         if (j == objTopLeft[1] || j == (objTopLeft[1] + 1) || j == (objTopLeft[1] + 2)) {
-  //           board[i][j].weight = 1;
-  //         }
-  //       } else {
-  //         board[i][j].weight = 0;
-  //       }
-  //     }
-  //   }
-  // }
 
   public void decideMove() {
     int[] moves = new int[5];
+    int votemove = -1;
     for (int i = 0; i < 7; i++) {
       for (int j = 0; j < 7; j++) {
-        moves[board[i][j].voteMove()] = moves[board[i][j].voteMove()] + board[i][j].weight;
+        votemove = board[i][j].voteMove();
+        moves[votemove] = moves[votemove] + board[i][j].weight;
       }
     }
     int max = -1;
+    int maxIndex = 0;
     for (int i = 0; i < 5; i++) {
       if(moves[i] > max) {
-        max = i;
+        max = moves[i];
+        maxIndex = i;
       }
     }
-    decidedMove = max;
+    decidedMove = maxIndex;
   }
 
   public void moveObj() {
@@ -131,7 +104,7 @@ public class Environment {
       // no move
     }
     updateWeight();
-    checkType();
+    //checkType();
   }
 
   public boolean checkType() {
@@ -169,6 +142,7 @@ public class Environment {
     System.out.println("1");
     while (environment.checkType()) {
       environment.moveObj();
+      //System.out.println("The move at " + environment.board[0][0].payOff+  " is " + environment.decidedMove);
       environment.print();
       System.out.println();
     }
